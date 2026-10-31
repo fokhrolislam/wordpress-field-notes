@@ -13,6 +13,8 @@ Things that cost me a debugging round on live client sites, written down so they
 - [Hosting WAFs reject small raw PUT bodies](#hosting-wafs-reject-small-raw-put-bodies)
 - [Tawk.to widget: what you can and cannot restyle](#tawkto-widget-what-you-can-and-cannot-restyle)
 - [Auto-loaded PHP folders need a crash guard](#auto-loaded-php-folders-need-a-crash-guard)
+- [Chrome PDFs show grey boxes outside Chrome](#chrome-pdfs-show-grey-boxes-outside-chrome)
+- [A missing doctype freezes Lenis smooth scroll](#a-missing-doctype-freezes-lenis-smooth-scroll)
 
 ---
 
@@ -81,6 +83,14 @@ On a Hostinger-hosted site, raw `curl -X PUT --data-binary @file` uploads return
 ## Auto-loaded PHP folders need a crash guard
 
 Remote-operation connectors that auto-load every file in a sandbox folder usually have a crash guard: one fatal writes a `.crashed` marker and from then on **no** sandbox file loads. Nothing errors on the front end; features just vanish together. When "a feature stopped although its file is untouched", look for the marker first, remove the offending file, lint every remaining file, move the marker out. Never drop one-off test scripts (CLI-only constants like `STDERR` are fatal under the web SAPI) into an auto-loaded folder.
+
+## Chrome PDFs show grey boxes outside Chrome
+
+A brand guide printed from headless Chrome looked right in Chrome and came back from a client as "corrupted" on an iPhone. `box-shadow`, gradients and filters print as shading objects, and viewers that handle them differently draw grey or black boxes. pdf.js showed the same fault, so it works as a local check. Run [`scripts/print-flat.js`](scripts/print-flat.js) in the page before printing: shadows become a thin outline with no layout shift, gradients become their first colour. All 14 pages then rendered in pdf.js with no warnings. Not re-checked on a physical iPhone, so ask the person who reported it to confirm.
+
+## A missing doctype freezes Lenis smooth scroll
+
+Adding Lenis to a hand-written page stopped the wheel from scrolling at all. The page had no `<!doctype html>`, so the browser ran it in quirks mode, where `<body>` is the scroller, while Lenis scrolls `<html>`. Add the doctype, then diff a screenshot, because leaving quirks mode can shift the layout (5px in this case). Also set `html.lenis { scroll-behavior: auto !important; }` and put `data-lenis-prevent` on inner scrollers.
 
 ## License
 
