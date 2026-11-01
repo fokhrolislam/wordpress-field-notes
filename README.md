@@ -92,6 +92,14 @@ A brand guide printed from headless Chrome looked right in Chrome and came back 
 
 Adding Lenis to a hand-written page stopped the wheel from scrolling at all. The page had no `<!doctype html>`, so the browser ran it in quirks mode, where `<body>` is the scroller, while Lenis scrolls `<html>`. Add the doctype, then diff a screenshot, because leaving quirks mode can shift the layout (5px in this case). Also set `html.lenis { scroll-behavior: auto !important; }` and put `data-lenis-prevent` on inner scrollers.
 
+## wptexturize breaks a link with an inline SVG in its style
+
+An `<a style="--icon:url('data:image/svg+xml;utf8,<svg ...>')">` looks fine in the database and comes out as visible text on the page. The `<` inside the attribute makes `wptexturize` treat the tag as finished, so it escapes the rest of it and turns `--` into an en dash. Put the icon in a file and point the style at its URL, so no `<` sits inside the attribute.
+
+## Rank Math custom term variable can come back empty
+
+`%customterm(my-taxonomy)%` in a post type title template rendered empty on a custom post type here, and Rank Math then dropped the text around it without any warning. Test a template variable on a live post before relying on it. A small `rank_math/frontend/title` filter that reads the term and skips posts with a custom title did the job and also covers posts added later.
+
 ## License
 
 MIT
